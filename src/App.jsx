@@ -1,25 +1,21 @@
-import { useState } from 'react';
-import './App.css';
+import { useState } from "react";
+import "./App.css";
+import Clicker from "./components/Clicker";
+import WithRef from "./components/Ref";
 
 function App() {
-  const [count, setCount] = useState(0);
-
-  const increment = () => {
-    setCount(count + 1);
-  }
+  const [isClicker, setClicker] = useState(false);
 
   return (
     <>
-      <div>
-      </div>
       <h1>Timer</h1>
+      <WithRef />
       <div className="card">
-        <button onClick={increment}>
-          count is {count}
-        </button>
+        <button onClick={() => setClicker(!isClicker)}>Toggle clicker</button>
+        {isClicker && <Clicker />}
       </div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
