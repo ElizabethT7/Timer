@@ -1,10 +1,38 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useReducer } from "react";
 
 const timerStyle = {
   padding: "20px",
   borderRadius: "5px",
   backgroundColor: "chartreuse",
 };
+
+const countReducer = (state, {action}) => {
+  if (action === 'START') {
+    return {
+      ...state,
+      isCounting: true,
+    }
+  }
+  if (action === 'STOP') {
+    return {
+      count: 0,
+      isCounting: false,
+    }
+  }
+  if (action === 'RESET') {
+    return {
+      ...state,
+      isCounting: false,
+    }
+  }
+  if (action === 'TICK') {
+    return {
+      ...state,
+      count: state.count + 1,
+    }
+  }
+  return state;
+}
 
 function setDefaultValue() {
   //componentDidMount()
@@ -13,8 +41,8 @@ function setDefaultValue() {
 }
 
 function Timer() {
-  const [count, setCount] = useState(setDefaultValue());
-  const [isCounting, setCounting] = useState(false);
+  const [{count, isCounting}, dispatch] = useReducer(countReducer, {count: setDefaultValue(), isCounting: false});
+  /*const [isCounting, setCounting] = useState(false);
   const timerIdRef = useRef(null);
 
   const handleStart = () => {
@@ -28,7 +56,7 @@ function Timer() {
   const handleReset = () => {
     setCount(0);
     setCounting(false);
-  };
+  };*/
 
   useEffect(() => {
     localStorage.setItem("timer", count);
@@ -36,18 +64,19 @@ function Timer() {
 
   useEffect(() => {
     //componentDidUpdate()
+    let timerId = null;
     console.log("update");
     if (isCounting) {
-      timerIdRef.current = setInterval(() => {
-        setCount((prevCount) => prevCount + 1);
+      timerId = setInterval(() => {
+        dispatch({ action: 'TICK' });
       }, 1000);
     }
 
     //componentWillUnmount()
     return () => {
       console.log("unmount");
-      timerIdRef.current && clearInterval(timerIdRef.current);
-      timerIdRef.current = null;
+      timerId && clearInterval(timerId);
+      timerId = null;
     };
   }, [isCounting]);
 
@@ -56,11 +85,11 @@ function Timer() {
       <h2>React Timer</h2>
       <h3>{count}</h3>
       {!isCounting ? (
-        <button onClick={handleStart}>Start</button>
+        <button onClick={() => dispatch({ action: 'START' })}>Start</button>
       ) : (
-        <button onClick={handleStop}>Stop</button>
+        <button onClick={() => dispatch({ action: 'STOP' })}>Stop</button>
       )}
-      <button style={{ marginLeft: "8px" }} onClick={handleReset}>
+      <button style={{ marginLeft: "8px" }} onClick={() => dispatch({ action: 'RESET' })}>
         Reset
       </button>
     </div>
